@@ -1,0 +1,50 @@
+html{
+  background-color: #e1d9c9
+
+}
+
+.page-content {
+  padding: 30px 100px;
+  }
+  a {
+    text-decoration: none;
+    color: black;
+    font-family: sans-serif;
+  }
+  h1 {
+    font-family: system-ui;
+  }
+
+  #watched-movie-list {
+
+    }
+
+    .watched-movie,
+    .movie-to-watch {
+      background-color: white;
+      margin-bottom: 10px;
+      width: fit-content;
+      padding: 10px 5px;
+    }
+    .watched-movie:hover,
+    .movie-to-watch:hover{
+      margin-left: 20px;
+    }
+
+    .movie-preview {
+      background-color: white;
+      padding: 20px;
+      width: 500px;
+      height: 500px;
+      top: 0;
+      bottom: 0;
+      margin: auto;
+      left: 500px;
+      position: fixed;
+      display: none;
+    }
+    .watched-movie:hover + .movie-preview,
+    .movie-to-watch:hover + .movie-preview {
+      display: block;
+
+    }

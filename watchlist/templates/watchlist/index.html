@@ -1,0 +1,47 @@
+{% load static %}
+<head>
+  <link rel="stylesheet" href="{% static 'css/index.css' %}">
+</head>
+<div class="page-content">
+
+  <div class="movie-preview" style="display:block; filter: drop-shadow(-2px 5px 13px black)"></div>
+
+  <div id="watched-movie-list">
+    <h1> Your List: </h1>
+    {% if ranked_list %}
+        <ul>
+        {% for movie in ranked_list %}
+            <div class="watched-movie"><a href="{% url 'watchlist:detail' movie.id %}">{{ movie.movie_title }}</a></div>
+            <div class="movie-preview">
+                <h1>{{ movie.movie_title }}</h1>
+                <p>{{ movie.synopsis }}</p>
+           </div>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <p >You haven't watched any movies I guess. </p>
+    {% endif %}
+  </div>
+
+  <div id="watched-movie-list">
+    {% if to_watch_list %}
+        <h1> To Watch: </h1>
+        <ul>
+        {% for movie in to_watch_list %}
+            <div class="movie-to-watch">
+              <a href="{% url 'watchlist:detail' movie.id %}">{{ movie.movie_title }}</a>
+            </div>
+            <div class="movie-preview">
+                <h1>{{ movie.movie_title }}</h1>
+                <p>{{ movie.synopsis }}</p>
+           </div>
+        {% endfor %}
+        </ul>
+    {% endif %}
+    <div class="new_movie_button"><a href="{% url 'watchlist:new_movie'%}"> add new movie </a></div>
+
+    {% for item in "x"|ljust:"100" %}
+      <p></p>
+    {% endfor %}
+  </div>
+</div>
