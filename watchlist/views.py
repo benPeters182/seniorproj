@@ -24,8 +24,11 @@ def detail(request, movie_id):
             movie.watch_state = form.cleaned_data['new_watch_state']
             if form.cleaned_data['new_rating'] != None:
                 movie.rating = form.cleaned_data['new_rating']
-
             movie.save()
+
+            if str(form.cleaned_data['delete_movie']) == 'delete':
+                movie.delete()
+
             return HttpResponseRedirect("/watchlist/")
     else:
         form = UpdateMovieForm(request.POST, movie)

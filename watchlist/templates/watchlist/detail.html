@@ -2,15 +2,18 @@
 <head>
   <link rel="stylesheet" href="{% static 'css/detail.css' %}">
 </head>
-<a href="/watchlist">back to list</a>
+<a href="/watchlist">
+  <img src="{% static 'images/arrow.svg' %}" alt="back to list" id="back-arrow">
+</a>
 <div class="page-content">
-  <div>
+  <div class="header">
     <h1>{{ movie.movie_title }}</h1>
     {% if movie.watch_state == "WD" %}
       <p>{{ movie.rating }}</p>
     {% endif %}
+  </div>
   <div>
-  <p>{{ movie.synopsis }}</p>
+  <p class="movie-summary">{{ movie.synopsis }}</p>
 
   <form action="{% url 'watchlist:detail' movie.id %}" method="post">
       {% csrf_token %}
