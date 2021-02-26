@@ -4,13 +4,24 @@ from django.shortcuts import get_object_or_404, render
 from bs4 import BeautifulSoup
 import requests
 
-from .models import Movie
+from .models import Movie, WatchList
 from .forms import NewMovieForm, UpdateMovieForm
 
-def index(request):
-    ranked_list = Movie.objects.filter(watch_state="WD").order_by('-rating')
-    to_watch_list = Movie.objects.filter(watch_state="TW")
-    context = {'ranked_list': ranked_list, 'to_watch_list': to_watch_list}
+def index(request, list_name):
+    watchlst = get_object_or_404(WatchList, name=list_name)
+    wl_movies = Movie.objects.filter(list=watchlst)
+    ranked_list = wl_movies.filter(watch_state="WD").order_by('-rating')
+    to_watch_list = wl_movies.filter(watch_state="TW")
+    lists = []
+    for list in WatchList.objects.all():
+        if list.name != list_name:
+            lists.append(list)
+
+    context = {'watchlst': watchlst,
+                'lists': lists,
+                'ranked_list': ranked_list,
+                'to_watch_list': to_watch_list
+    }
     return render(request, 'watchlist/index.html', context)
 
 def detail(request, movie_id):
@@ -29,7 +40,7 @@ def detail(request, movie_id):
             if str(form.cleaned_data['delete_movie']) == 'delete':
                 movie.delete()
 
-            return HttpResponseRedirect("/watchlist/")
+            return HttpResponseRedirect("/watchlist/" + movie.list.name)
     else:
         form = UpdateMovieForm(request.POST, movie)
 
@@ -48,7 +59,9 @@ def find_movie_page(title):
     return BeautifulSoup(movie_page.content, 'html.parser')
 
 
-def new_movie(request):
+def new_movie(request, list_name):
+    watchlst = get_object_or_404(WatchList, name=list_name)
+
     if request.method == 'POST':
         form = NewMovieForm(request.POST)
         if form.is_valid():
@@ -56,10 +69,11 @@ def new_movie(request):
             newmov.movie_title = form.cleaned_data['movie_title']
             soup = find_movie_page(newmov.movie_title)
             newmov.synopsis = soup.find_all('div', class_='summary_text')[0].get_text()
+            newmov.list = watchlst
 
             newmov.save()
-            return HttpResponseRedirect("/watchlist/")
+            return HttpResponseRedirect("/watchlist/" + watchlst.name)
     else:
         form = NewMovieForm()
 
-    return render(request, 'watchlist/newmovie.html', {'form': form})
+    return render(request, 'watchlist/newmovie.html', {'watchlst': watchlst, 'form': form})

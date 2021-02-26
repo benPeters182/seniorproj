@@ -13,7 +13,30 @@ html{
   }
   h1 {
     font-family: system-ui;
+    margin: auto;
   }
+
+  .list-header{
+    display: flex;
+    align-items: flex-end;
+    }
+
+    .list-menu {
+      display: flex;
+      flex-direction: column;
+      padding-right: 10px;
+      }
+
+      .hidden-list{
+        visibility: hidden;
+      }
+      .not-hidden-list{
+        visibility: visible;
+      }
+      #current-list{
+        cursor: pointer;
+  }
+
 
   #watched-movie-list {
 
