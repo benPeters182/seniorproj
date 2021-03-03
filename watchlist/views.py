@@ -5,7 +5,7 @@ from bs4 import BeautifulSoup
 import requests
 
 from .models import Movie, WatchList
-from .forms import NewMovieForm, UpdateMovieForm
+from .forms import NewMovieForm, UpdateMovieForm, NewMovieOptionsForm
 
 def index(request, list_name):
     watchlst = get_object_or_404(WatchList, name=list_name)
@@ -60,37 +60,28 @@ def find_movie_page(title):
 
 
 def new_movie(request, list_name):
-    watchlst = get_object_or_404(WatchList, name=list_name)
+    watchlst = get_object_or_404(WatchList, name = list_name)
 
     if request.method == 'POST':
         form = NewMovieForm(request.POST)
         if form.is_valid():
-            newmov = Movie()
-            newmov.movie_title = form.cleaned_data['movie_title']
-            soup = find_movie_page(newmov.movie_title)
+            movie_title = form.cleaned_data['movie_title']
 
-            newmov.movie_title = soup.find('div', class_='title_wrapper').h1.get_text()
-            newmov.synopsis = soup.find_all('div', class_='summary_text')[0].get_text()
-            newmov.featured_img = soup.find('div', class_='poster').img['src']
-            newmov.list = watchlst
-
-            newmov.save()
-
-            return HttpResponseRedirect("/watchlist/" + watchlst.name)
+            return HttpResponseRedirect("/watchlist/" + watchlst.name + "/options/Herbie")#"/watchlist/" + watchlst.name + "/new-movie-options/" + "Herbie")
     else:
         form = NewMovieForm()
 
     return render(request, 'watchlist/newmovie.html', {'watchlst': watchlst, 'form': form})
 
-def new_movie_options(request):
-
-    choices = [("https://www.imdb.com/title/tt0087469/?ref_=fn_al_tt_2", "Limitless (I) (2011)"), ("https://www.imdb.com/title/tt0087469/?ref_=fn_al_tt_2", "Different Limitless")]
+def new_movie_options(request, list_name, search_text):
+    watchlst = get_object_or_404(WatchList, name = list_name)
+    choices = [("https://www.imdb.com/title/tt0087469/?ref_=fn_al_tt_2", "Fortnite"), ("https://www.imdb.com/title/tt0087469/?ref_=fn_al_tt_2", "Different Limitless")]
 
     if request.method == 'POST':
-        form = NewMovieOptionsForm(request.POST, choices)
-        print(form)
+        form = NewMovieOptionsForm(request.POST, movie_choices = choices)
+        print("got to line 82")
         if form.is_valid():
-            """
+
             newmov = Movie()
             newmov.movie_title = form.cleaned_data['movie_title']
             soup = find_movie_page(newmov.movie_title)
@@ -101,9 +92,9 @@ def new_movie_options(request):
             newmov.list = watchlst
 
             newmov.save()
-            """
+
             return HttpResponseRedirect("/watchlist/" + watchlst.name)
     else:
-        form = NewMovieForm()
+        form = NewMovieOptionsForm(movie_choices = choices)
 
-    return render(request, 'watchlist/newmovieoptions.html', {'watchlst': watchlst, 'form': form})
+    return render(request, 'watchlist/newmovieoptions.html', {'watchlst': watchlst, 'form': form, 'search_text': search_text})

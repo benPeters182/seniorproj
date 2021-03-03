@@ -22,6 +22,13 @@ function toggleWatchlistMenu() {
   }
 
 }
+
+function searchMovies() {
+  var search_prompt = document.getElementById("movie-search").value;
+  var search_prompt = document.getElementById("movie-search").value;
+  console.log(search_prompt);
+  location.href="/watchlist/movie-options/Leah/" + search_prompt
+}
 </script>
 
 <div id="page-decoration"  style="background-color:{{watchlst.color}}"></div>
@@ -77,7 +84,9 @@ function toggleWatchlistMenu() {
         {% endfor %}
         </ul>
     {% endif %}
-    <div class="new_movie_button"><a href="{% url 'watchlist:new_movie' watchlst.name %}"> add new movie </a></div>
+    <div class="new_movie_button"><a href="{% url 'watchlist:new_movie_options' watchlst.name 'Herbie' %}"> add new movie </a></div>
+    <input type="text" name="movie-search" id="movie-search" value="">
+    <button type="button" name="button" onclick="searchMovies()">find movie</button>
 
   </div>
 </div>

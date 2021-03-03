@@ -2,8 +2,7 @@
 <head>
     <link rel="stylesheet" href="{% static 'css/newmovie.css' %}">
 </head>
-peepee
-<form action="{% url 'watchlist:new_movie_options' watchlst.name%}" method="post">
+<form action="{% url 'watchlist:new_movie_options' watchlst.name search_text%}" method="post">
     {% csrf_token %}
     {{ form }}
     <input type="submit" value="Submit">
