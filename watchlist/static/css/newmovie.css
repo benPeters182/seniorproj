@@ -1,0 +1,10 @@
+html{
+  background-color: #e1d9c9
+}
+
+form{
+  display: flex;
+  justify-content: space-evenly;
+  padding: 20px;
+  width: 358px;
+}

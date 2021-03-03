@@ -1,4 +1,9 @@
-<form action="{% url 'watchlist:new_movie' %}" method="post">
+{% load static %}
+<head>
+  <link rel="stylesheet" href="{% static 'css/newmovie.css' %}">
+</head>
+
+<form action="{% url 'watchlist:new_movie' watchlst.name%}" method="post">
     {% csrf_token %}
     {{ form }}
     <input type="submit" value="Submit">

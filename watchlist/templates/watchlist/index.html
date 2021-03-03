@@ -1,20 +1,56 @@
 {% load static %}
+
 <head>
   <link rel="stylesheet" href="{% static 'css/index.css' %}">
 </head>
+
+<script>
+function toggleWatchlistMenu() {
+  var hid_lists = document.getElementsByClassName("hidden-list");
+  var shown_lists = document.getElementsByClassName("not-hidden-list");
+
+  if (hid_lists.length > 0) {
+    console.log(hid_lists.length)
+    for (i = 0; 0 < hid_lists.length; i++) {
+      console.log(hid_lists)
+      hid_lists[0].setAttribute("class", "not-hidden-list");
+    }
+  } else {
+    for (i = 0; 0 < shown_lists.length; i++) {
+      shown_lists[0].setAttribute("class", "hidden-list");
+    }
+  }
+
+}
+</script>
+
+<div id="page-decoration"  style="background-color:{{watchlst.color}}"></div>
 <div class="page-content">
 
   <div class="movie-preview" style="display:block; filter: drop-shadow(-2px 5px 13px black)"></div>
 
   <div id="watched-movie-list">
-    <h1> Your List: </h1>
+    <div class="list-header">
+      <div class="list-menu">
+        {% for list in lists %}
+          <a class="hidden-list" href="/watchlist/{{list.name}}"><h1>{{list.name}}</h1></a>
+        {% endfor %}
+        <span id="current-list" style="color:{{watchlst.color}}" onclick="toggleWatchlistMenu()"><h1>{{watchlst.name}}'s</h1></span>
+      </div>
+      <div>
+        <h1>Movies:</h1>
+      </div>
+    </div>
     {% if ranked_list %}
         <ul>
         {% for movie in ranked_list %}
             <div class="watched-movie"><a href="{% url 'watchlist:detail' movie.id %}">{{ movie.movie_title }}</a></div>
             <div class="movie-preview">
-                <h1>{{ movie.movie_title }}</h1>
-                <p>{{ movie.synopsis }}</p>
+              <img class="preview-img" src="{{movie.featured_img}}">
+              <div class="preview-right-col">
+                  <h1>{{ movie.movie_title }}</h1>
+                  <p>{{ movie.synopsis }}</p>
+              </div>
            </div>
         {% endfor %}
         </ul>
@@ -32,16 +68,16 @@
               <a href="{% url 'watchlist:detail' movie.id %}">{{ movie.movie_title }}</a>
             </div>
             <div class="movie-preview">
-                <h1>{{ movie.movie_title }}</h1>
-                <p>{{ movie.synopsis }}</p>
+                <img class="preview-img" src="{{movie.featured_img}}">
+                <div class="preview-right-col">
+                    <h1>{{ movie.movie_title }}</h1>
+                    <p>{{ movie.synopsis }}</p>
+                </div>
            </div>
         {% endfor %}
         </ul>
     {% endif %}
-    <div class="new_movie_button"><a href="{% url 'watchlist:new_movie'%}"> add new movie </a></div>
+    <div class="new_movie_button"><a href="{% url 'watchlist:new_movie' watchlst.name %}"> add new movie </a></div>
 
-    {% for item in "x"|ljust:"100" %}
-      <p></p>
-    {% endfor %}
   </div>
 </div>
