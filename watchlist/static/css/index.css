@@ -3,6 +3,14 @@ html{
 
 }
 
+#page-decoration{
+  width: 50px;
+  height: -webkit-fill-available;
+  position: fixed;
+  left: 1135px;
+  z-index: -1;
+}
+
 .page-content {
   padding: 30px 100px;
   }
@@ -29,9 +37,11 @@ html{
 
       .hidden-list{
         visibility: hidden;
+        opacity: 0;
       }
       .not-hidden-list{
-        visibility: visible;
+        opacity: 100%;
+        transition-duration: 1s;
       }
       #current-list{
         cursor: pointer;
@@ -57,17 +67,23 @@ html{
     .movie-preview {
       background-color: white;
       padding: 20px;
-      width: 500px;
-      height: 500px;
+      width: 600px;
+      height: 300px;
       top: 0;
       bottom: 0;
       margin: auto;
-      left: 500px;
+      left: 650px;
       position: fixed;
       display: none;
     }
     .watched-movie:hover + .movie-preview,
     .movie-to-watch:hover + .movie-preview {
-      display: block;
+      display: flex;
 
     }
+    .preview-img{
+      height: -webkit-fill-available;
+    }
+    .preview-right-col{
+        padding-left: 20px;
+}

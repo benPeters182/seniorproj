@@ -4,6 +4,7 @@ from decimal import Decimal
 
 class WatchList(models.Model):
     name = models.CharField(max_length=10)
+    color = models.CharField(max_length=7, default="#ffffff")
 
     def __str__(self):
         return self.name
@@ -24,6 +25,7 @@ class Movie(models.Model):
     #movie_url = models.CharField(max_length=200, null=True)
     #page = models.CharField(max_length=200, null=True)
     synopsis = models.CharField(max_length=200, null=True)
+    featured_img = models.ImageField(null=True)
 
     watch_state = models.CharField(
         choices = WATCH_STATE_CHOICES,

@@ -68,12 +68,42 @@ def new_movie(request, list_name):
             newmov = Movie()
             newmov.movie_title = form.cleaned_data['movie_title']
             soup = find_movie_page(newmov.movie_title)
+
+            newmov.movie_title = soup.find('div', class_='title_wrapper').h1.get_text()
             newmov.synopsis = soup.find_all('div', class_='summary_text')[0].get_text()
+            newmov.featured_img = soup.find('div', class_='poster').img['src']
             newmov.list = watchlst
 
             newmov.save()
+
             return HttpResponseRedirect("/watchlist/" + watchlst.name)
     else:
         form = NewMovieForm()
 
     return render(request, 'watchlist/newmovie.html', {'watchlst': watchlst, 'form': form})
+
+def new_movie_options(request):
+
+    choices = [("https://www.imdb.com/title/tt0087469/?ref_=fn_al_tt_2", "Limitless (I) (2011)"), ("https://www.imdb.com/title/tt0087469/?ref_=fn_al_tt_2", "Different Limitless")]
+
+    if request.method == 'POST':
+        form = NewMovieOptionsForm(request.POST, choices)
+        print(form)
+        if form.is_valid():
+            """
+            newmov = Movie()
+            newmov.movie_title = form.cleaned_data['movie_title']
+            soup = find_movie_page(newmov.movie_title)
+
+            newmov.movie_title = soup.find('div', class_='title_wrapper').h1.get_text()
+            newmov.synopsis = soup.find_all('div', class_='summary_text')[0].get_text()
+            newmov.featured_img = soup.find('div', class_='poster').img['src']
+            newmov.list = watchlst
+
+            newmov.save()
+            """
+            return HttpResponseRedirect("/watchlist/" + watchlst.name)
+    else:
+        form = NewMovieForm()
+
+    return render(request, 'watchlist/newmovieoptions.html', {'watchlst': watchlst, 'form': form})
