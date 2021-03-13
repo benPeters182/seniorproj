@@ -4,7 +4,12 @@ html{
 
 form{
   display: flex;
-  justify-content: space-evenly;
+  flex-direction: column;
   padding: 20px;
-  width: 358px;
+
+}
+
+input, select{
+  margin: 10px 0px 0px 0px;
+  width: fit-content;
 }

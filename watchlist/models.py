@@ -22,8 +22,6 @@ class Movie(models.Model):
     list = models.ForeignKey(WatchList, on_delete=models.CASCADE, null=True, blank=True)
     movie_title = models.CharField(max_length=200)
 
-    #movie_url = models.CharField(max_length=200, null=True)
-    #page = models.CharField(max_length=200, null=True)
     synopsis = models.CharField(max_length=200, null=True)
     featured_img = models.ImageField(null=True)
 
@@ -42,8 +40,6 @@ class Movie(models.Model):
     def __str__(self):
         return self.movie_title
 
-    def rate(self):
-        pass
 
 class Show(models.Model):
     TOWATCH = 'TW'
@@ -66,6 +62,3 @@ class Show(models.Model):
 
     def __str__(self):
         return self.show_title
-
-    def rate(self):
-        pass

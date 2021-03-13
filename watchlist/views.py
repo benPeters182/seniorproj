@@ -50,13 +50,33 @@ def detail(request, movie_id):
 
 def find_movie_page(title):
     '''Returns the html for the movie's IMDB page'''
-    search_url = 'https://www.imdb.com/find?q=' + title.replace(' ', '+')
+    search_url = 'https://www.imdb.com/find?q=' + title.replace(' ', '+') + '&s=tt&ttype=ft&ref_=fn_ft'
     search_page = requests.get(search_url)
     soup = BeautifulSoup(search_page.content, 'html.parser')
 
     movie_url = "https://www.imdb.com" + str(soup.find_all('td', class_='result_text')[0].a['href'])
     movie_page = requests.get(movie_url)
     return BeautifulSoup(movie_page.content, 'html.parser')
+
+
+def find_movie_choices(title):
+    '''Returns list of tuples for choice field'''
+    search_url = 'https://www.imdb.com/find?q=' + title.replace(' ', '+') + '&s=tt&ttype=ft&ref_=fn_ft'
+    search_page = requests.get(search_url)
+    soup = BeautifulSoup(search_page.content, 'html.parser')
+
+    num_possible_movies = len(soup.find_all('td', class_='result_text'))
+    MAX_MOVIE_OPTIONS = 10
+    if num_possible_movies >= MAX_MOVIE_OPTIONS:
+        num_possible_movies = MAX_MOVIE_OPTIONS
+
+    choices=[]
+    for i in range(num_possible_movies):
+        url = 'https://www.imdb.com' + str(soup.find_all('td', class_='result_text')[i].a['href'])
+        title = soup.find_all('td', class_='result_text')[i].get_text().strip()
+        choices.append((url , title))
+
+    return choices
 
 
 def new_movie(request, list_name):
@@ -67,15 +87,16 @@ def new_movie(request, list_name):
         if form.is_valid():
             movie_title = form.cleaned_data['movie_title']
 
-            return HttpResponseRedirect("/watchlist/" + watchlst.name + "/options/Herbie")#"/watchlist/" + watchlst.name + "/new-movie-options/" + "Herbie")
+            return HttpResponseRedirect("/watchlist/" + watchlst.name + "/options/Herbie")
     else:
         form = NewMovieForm()
 
     return render(request, 'watchlist/newmovie.html', {'watchlst': watchlst, 'form': form})
 
+
 def new_movie_options(request, list_name, search_text):
     watchlst = get_object_or_404(WatchList, name = list_name)
-    choices = [("https://www.imdb.com/title/tt0087469/?ref_=fn_al_tt_2", "Fortnite"), ("https://www.imdb.com/title/tt0087469/?ref_=fn_al_tt_2", "Different Limitless")]
+    choices = find_movie_choices(search_text)
 
     if request.method == 'POST':
         form = NewMovieOptionsForm(request.POST, movie_choices = choices)
@@ -83,8 +104,9 @@ def new_movie_options(request, list_name, search_text):
         if form.is_valid():
 
             newmov = Movie()
-            newmov.movie_title = form.cleaned_data['movie_title']
-            soup = find_movie_page(newmov.movie_title)
+            url = form.cleaned_data['movie_url']
+            movie_page = requests.get(url)
+            soup = BeautifulSoup(movie_page.content, 'html.parser')
 
             newmov.movie_title = soup.find('div', class_='title_wrapper').h1.get_text()
             newmov.synopsis = soup.find_all('div', class_='summary_text')[0].get_text()
