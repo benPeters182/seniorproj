@@ -45,26 +45,34 @@ html{
       }
       #current-list{
         cursor: pointer;
-  }
+      }
+      #movies-menu {
+        display: none;
+      }
+      #shows-menu{
+        cursor: pointer;
+}
 
-
-  #watched-movie-list {
+  #watched-show-list {
 
     }
 
-    .watched-movie,
-    .movie-to-watch {
+    .watched-show,
+    .show-to-watch {
       background-color: white;
       margin-bottom: 10px;
       width: fit-content;
       padding: 10px 5px;
     }
-    .watched-movie:hover,
-    .movie-to-watch:hover{
+    .watched-show:hover,
+    .show-to-watch:hover{
       margin-left: 20px;
     }
-
-    .movie-preview {
+    .show_preview .queued {
+      outline-style: solid;
+      outline-width: thick;
+    }
+    .show-preview {
       background-color: white;
       padding: 20px;
       width: 600px;
@@ -76,8 +84,8 @@ html{
       position: fixed;
       display: none;
     }
-    .watched-movie:hover + .movie-preview,
-    .movie-to-watch:hover + .movie-preview {
+    .watched-show:hover + .show-preview,
+    .show-to-watch:hover + .show-preview {
       display: flex;
 
     }
@@ -88,5 +96,5 @@ html{
         padding-left: 20px;
     }
     .rating{
-       
+
 }

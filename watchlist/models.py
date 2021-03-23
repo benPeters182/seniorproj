@@ -19,12 +19,10 @@ class Movie(models.Model):
         (WATCHED, 'Watched')
     ]
 
-    list = models.ForeignKey(WatchList, on_delete=models.CASCADE, null=True, blank=True)
-    movie_title = models.CharField(max_length=200)
-
-    synopsis = models.CharField(max_length=200, null=True)
-    featured_img = models.ImageField(null=True)
-
+    list = models.ForeignKey(WatchList, on_delete = models.CASCADE, null=True, blank=True)
+    movie_title = models.CharField(max_length = 200)
+    synopsis = models.CharField(max_length = 200, null = True)
+    featured_img = models.ImageField(null = True)
     watch_state = models.CharField(
         choices = WATCH_STATE_CHOICES,
         max_length = 2,
@@ -36,6 +34,9 @@ class Movie(models.Model):
         default=0,
         validators=[MinValueValidator(Decimal('0.00'))]
         )
+
+    queued = models.BooleanField(default = False)
+    watch_date = models.DateField(null = True, default = None)
 
     def __str__(self):
         return self.movie_title
@@ -53,12 +54,18 @@ class Show(models.Model):
     ]
 
     show_title = models.CharField(max_length=200)
+    list = models.ForeignKey(WatchList, on_delete=models.CASCADE, null=True, blank=True)
+    synopsis = models.CharField(max_length=200, null=True)
+    featured_img = models.ImageField(null=True)
     watch_state = models.CharField(
         choices = WATCH_STATE_CHOICES,
         max_length = 2,
         default = TOWATCH
     )
     rating = models.DecimalField(max_digits=3, decimal_places=2, default=0)
+    queued = models.BooleanField(default=False)
+    start_date = models.DateField(null = True, default = None)
+    finish_date = models.DateField(null = True, default = None)
 
     def __str__(self):
         return self.show_title

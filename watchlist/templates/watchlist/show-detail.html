@@ -1,0 +1,24 @@
+{% load static %}
+<head>
+  <link rel="stylesheet" href="{% static 'css/detail.css' %}">
+</head>
+<a href="/watchlist/{{show.list.name}}/shows">
+  <img src="{% static 'images/arrow.svg' %}" alt="back to list" id="back-arrow">
+</a>
+<div class="page-content">
+  <div class="header">
+    <h1>{{ show.show_title }}</h1>
+    {% if show.watch_state == "WD" %}
+      <p>{{ movie.rating }}</p>
+    {% endif %}
+  </div>
+  <div>
+  <p class="movie-summary">{{ movie.synopsis }}</p>
+
+  <form action="{% url 'watchlist:show_detail' show.id %}" method="post">
+      {% csrf_token %}
+      {{ form }}
+      <input type="submit" value="update">
+  </form>
+
+</div>

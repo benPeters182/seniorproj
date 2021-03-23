@@ -4,14 +4,15 @@ from django.shortcuts import get_object_or_404, render
 from bs4 import BeautifulSoup
 import requests
 
-from .models import Movie, WatchList
-from .forms import NewMovieForm, UpdateMovieForm, NewMovieOptionsForm
+from .models import Movie, WatchList, Show
+from .forms import NewMovieForm, UpdateMovieForm, UpdateShowForm, NewMovieOptionsForm
 
-def index(request, list_name):
+def movie_index(request, list_name):
     watchlst = get_object_or_404(WatchList, name=list_name)
     wl_movies = Movie.objects.filter(list=watchlst)
     ranked_list = wl_movies.filter(watch_state="WD").order_by('-rating')
-    to_watch_list = wl_movies.filter(watch_state="TW")
+    to_watch_queued = wl_movies.filter(watch_state="TW").filter(queued=True)
+    to_watch_list = wl_movies.filter(watch_state="TW").filter(queued=False)
     lists = []
     for list in WatchList.objects.all():
         if list.name != list_name:
@@ -20,21 +21,48 @@ def index(request, list_name):
     context = {'watchlst': watchlst,
                 'lists': lists,
                 'ranked_list': ranked_list,
+                'to_watch_queued': to_watch_queued,
                 'to_watch_list': to_watch_list
     }
-    return render(request, 'watchlist/index.html', context)
+    return render(request, 'watchlist/movie_index.html', context)
 
-def detail(request, movie_id):
+def show_index(request, list_name):
+    watchlst = get_object_or_404(WatchList, name=list_name)
+    wl_shows = Show.objects.filter(list=watchlst)
+    ranked_list = wl_shows.filter(watch_state="WD").order_by('-rating')
+
+    to_watch_list = wl_shows.filter(watch_state="TW")
+    watching_list_queued = wl_shows.filter(watch_state="WG").filter(queued=True)
+    watching_list = wl_shows.filter(watch_state="WG").filter(queued=False)
+    to_watch_queued = wl_shows.filter(watch_state="TW").filter(queued=True)
+    to_watch_list = wl_shows.filter(watch_state="TW").filter(queued=False)
+    lists = []
+    for list in WatchList.objects.all():
+        if list.name != list_name:
+            lists.append(list)
+
+    context = {'watchlst': watchlst,
+                'lists': lists,
+                'ranked_list': ranked_list,
+                'watching_list_queued': watching_list_queued,
+                'watching_list': watching_list,
+                'to_watch_queued': to_watch_queued,
+                'to_watch_list': to_watch_list
+    }
+    return render(request, 'watchlist/show_index.html', context)
+
+def movie_detail(request, movie_id):
     movie = get_object_or_404(Movie, pk=movie_id)
 
     if request.method == 'POST':
         movie = get_object_or_404(Movie, pk=movie_id)
 
-        form = UpdateMovieForm(request.POST, movie)
+        form = UpdateMovieForm(request.POST)
         if form.is_valid():
             movie.watch_state = form.cleaned_data['new_watch_state']
             if form.cleaned_data['new_rating'] != None:
                 movie.rating = form.cleaned_data['new_rating']
+            movie.queued = form.cleaned_data['queued']
             movie.save()
 
             if str(form.cleaned_data['delete_movie']) == 'delete':
@@ -45,7 +73,29 @@ def detail(request, movie_id):
         form = UpdateMovieForm(request.POST, movie)
 
 
-    return render(request, 'watchlist/detail.html', {'movie': movie, 'form': form})
+    return render(request, 'watchlist/movie-detail.html', {'movie': movie, 'form': form})
+
+def show_detail(request, show_id):
+    show = get_object_or_404(Show, pk=show_id)
+
+    if request.method == 'POST':
+        sform = UpdateShowForm(request.POST)
+        if sform.is_valid():
+            show.watch_state = sform.cleaned_data['new_watch_state']
+            if sform.cleaned_data['new_rating'] != None:
+                show.rating = sform.cleaned_data['new_rating']
+            show.queued = sform.cleaned_data['queued']
+            show.save()
+
+            if str(sform.cleaned_data['delete_show']) == 'delete':
+                movie.delete()
+
+            return HttpResponseRedirect("/watchlist/" + movie.list.name)
+    else:
+        form = UpdateMovieForm(request.POST, show)
+
+
+    return render(request, 'watchlist/show-detail.html', {'show': show, 'form': form})
 
 
 def find_movie_page(title):
@@ -59,9 +109,15 @@ def find_movie_page(title):
     return BeautifulSoup(movie_page.content, 'html.parser')
 
 
-def find_movie_choices(title):
+def find_choices(title, show_or_movie):
     '''Returns list of tuples for choice field'''
-    search_url = 'https://www.imdb.com/find?q=' + title.replace(' ', '+') + '&s=tt&ttype=ft&ref_=fn_ft'
+    search_url = 'https://www.imdb.com/find?q=' + title.replace(' ', '+') + '&s=tt&ttype='
+
+    if show_or_movie == "movie":
+        search_url = search_url + 'ft&ref_=fn_ft'
+    elif show_or_movie == "show":
+        search_url = search_url + 'tv&ref_=fn_tv'
+
     search_page = requests.get(search_url)
     soup = BeautifulSoup(search_page.content, 'html.parser')
 
@@ -96,7 +152,7 @@ def new_movie(request, list_name):
 
 def new_movie_options(request, list_name, search_text):
     watchlst = get_object_or_404(WatchList, name = list_name)
-    choices = find_movie_choices(search_text)
+    choices = find_choices(search_text, "movie")
 
     if request.method == 'POST':
         form = NewMovieOptionsForm(request.POST, movie_choices = choices)
@@ -115,8 +171,35 @@ def new_movie_options(request, list_name, search_text):
 
             newmov.save()
 
-            return HttpResponseRedirect("/watchlist/" + watchlst.name)
+            return HttpResponseRedirect("/watchlist/" + watchlst.name + "/movies")
     else:
         form = NewMovieOptionsForm(movie_choices = choices)
 
     return render(request, 'watchlist/newmovieoptions.html', {'watchlst': watchlst, 'form': form, 'search_text': search_text})
+
+def new_show_options(request, list_name, search_text):
+    watchlst = get_object_or_404(WatchList, name = list_name)
+    choices = find_choices(search_text, "show")
+
+    if request.method == 'POST':
+        form = NewMovieOptionsForm(request.POST, movie_choices = choices)
+        print("got to line 82")
+        if form.is_valid():
+
+            newshow = Show()
+            url = form.cleaned_data['movie_url']
+            show_page = requests.get(url)
+            soup = BeautifulSoup(show_page.content, 'html.parser')
+
+            newshow.show_title = soup.find('div', class_='title_wrapper').h1.get_text()
+            newshow.synopsis = soup.find_all('div', class_='summary_text')[0].get_text()
+            newshow.featured_img = soup.find('div', class_='poster').img['src']
+            newshow.list = watchlst
+
+            newshow.save()
+
+            return HttpResponseRedirect("/watchlist/" + watchlst.name + "/shows")
+    else:
+        form = NewMovieOptionsForm(movie_choices = choices)
+
+    return render(request, 'watchlist/newshowoptions.html', {'watchlst': watchlst, 'form': form, 'search_text': search_text})

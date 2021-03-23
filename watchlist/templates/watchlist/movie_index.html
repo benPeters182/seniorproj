@@ -1,7 +1,7 @@
 {% load static %}
 
 <head>
-  <link rel="stylesheet" href="{% static 'css/index.css' %}">
+  <link rel="stylesheet" href="{% static 'css/movie_index.css' %}">
 </head>
 
 <script>
@@ -20,9 +20,16 @@ function toggleWatchlistMenu() {
       shown_lists[0].setAttribute("class", "hidden-list");
     }
   }
-
 }
 
+function toggleShowMenu() {
+  var element = document.getElementById("shows-menu");
+  if (element.style.display !== "flex") {
+    element.style.display = "flex";
+  } else {
+    element.style.display = "none";
+  }
+}
 
 function searchMovies() {
   var search_prompt = document.getElementById("movie-search").value;
@@ -31,6 +38,26 @@ function searchMovies() {
   console.log(list_name.substr(0,list_name.length-2));
   location.href="/watchlist/movie-options/" + list_name.substr(0,list_name.length-2) + "/" + search_prompt
 }
+
+
+function collapseList(list_class, icon_id) {
+  var list_elements = document.getElementsByClassName(list_class);
+  var icon = document.getElementById(icon_id);
+
+  if (list_elements[0].style.display === "none") {
+    for (i = 0; i < list_elements.length; i++) {
+      list_elements[i].style.display = "flex";
+      icon.style.transform = "rotate(0deg)";
+    }
+  } else {
+    for (i = 0; i < list_elements.length; i++) {
+      list_elements[i].style.display = "none";
+      icon.style.transform = "rotate(180deg)";
+    }
+  }
+
+}
+
 </script>
 
 <div id="page-decoration"  style="background-color:{{watchlst.color}}"></div>
@@ -42,18 +69,23 @@ function searchMovies() {
     <div class="list-header">
       <div class="list-menu">
         {% for list in lists %}
-          <a class="hidden-list" href="/watchlist/{{list.name}}"><h1>{{list.name}}</h1></a>
+          <a class="hidden-list" href="/watchlist/{{watchlst.name}}/movies"><h1>{{list.name}}</h1></a>
         {% endfor %}
         <span id="current-list" style="color:{{watchlst.color}}" onclick="toggleWatchlistMenu()"><h1>{{watchlst.name}}'s</h1></span>
       </div>
       <div>
-        <h1>Movies:</h1>
+        <a id="shows-menu" href="/watchlist/{{watchlst.name}}/shows"><h1>Shows</h1></a>
+        <div style="display: flex">
+          <h1 id="movies-menu" onclick="toggleShowMenu()">Movies </h1>
+          <img src="{% static 'images/collapse_arrow.png' %}" alt="collapse" id="watched-collapse-icon" style="height: 25px; align-self: center" onclick="collapseList('watched-movie', 'watched-collapse-icon')">
+        </div>
       </div>
     </div>
+
     {% if ranked_list %}
         <ul>
         {% for movie in ranked_list %}
-            <div class="watched-movie"><a href="{% url 'watchlist:detail' movie.id %}">{{ movie.movie_title }}</a></div>
+            <div class="watched-movie"><a href="{% url 'watchlist:movie_detail' movie.id %}">{{ movie.movie_title }}</a></div>
             <div class="movie-preview">
               <img class="preview-img" src="{{movie.featured_img}}">
               <div class="preview-right-col">
@@ -73,7 +105,19 @@ function searchMovies() {
     {% if to_watch_list %}
         <h1> To Watch: </h1>
         <ul>
-        {% for movie in to_watch_list %}
+          {% for movie in to_watch_queued %}
+              <div class="movie-to-watch">
+                <a href="{% url 'watchlist:detail' movie.id %}">{{ movie.movie_title }}</a>
+              </div>
+              <div class="movie-preview queued" style="outline:{{watchlst.color}}; outline-style: solid; outline-width: thick;">
+                  <img class="preview-img" src="{{movie.featured_img}}">
+                  <div class="preview-right-col">
+                      <h1>{{ movie.movie_title }}</h1>
+                      <p>{{ movie.synopsis }}</p>
+                  </div>
+             </div>
+          {% endfor %}
+          {% for movie in to_watch_list %}
             <div class="movie-to-watch">
               <a href="{% url 'watchlist:detail' movie.id %}">{{ movie.movie_title }}</a>
             </div>
@@ -87,7 +131,7 @@ function searchMovies() {
         {% endfor %}
         </ul>
     {% endif %}
-    
+
     <input type="text" name="movie-search" id="movie-search" placeholder="add a new movie" value="">
     <button type="button" name="button" onclick="searchMovies()">find movie</button>
 
