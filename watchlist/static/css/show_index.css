@@ -3,12 +3,20 @@ html{
 
 }
 
-#page-decoration{
+#page-decoration {
   width: 50px;
   height: -webkit-fill-available;
   position: fixed;
   left: 1135px;
   z-index: -1;
+}
+#sort-by {
+  display: flex;
+}
+#by-rating {
+  font-weight: bold;
+}
+#by-date {
 }
 
 .page-content {
@@ -46,6 +54,11 @@ html{
       #current-list{
         cursor: pointer;
       }
+      #title-type-header{
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+      }
       #movies-menu {
         display: none;
       }
@@ -53,8 +66,15 @@ html{
         cursor: pointer;
 }
 
-  #watched-show-list {
+  #watched-list {
 
+    }
+
+    #ranked-list {
+      display: flex;
+    }
+    #chronological-list {
+      display: none;
     }
 
     .watched-show,

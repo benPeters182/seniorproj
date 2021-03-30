@@ -13,7 +13,7 @@
     {% endif %}
   </div>
   <div>
-  <p class="movie-summary">{{ movie.synopsis }}</p>
+  <p class="movie-summary">{{ show.synopsis }}</p>
 
   <form action="{% url 'watchlist:show_detail' show.id %}" method="post">
       {% csrf_token %}

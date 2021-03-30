@@ -22,6 +22,30 @@ function toggleWatchlistMenu() {
   }
 }
 
+function sortByRating() {
+  var button = document.getElementById("by-rating");
+  var otherButton = document.getElementById("by-date");
+  var rlist = document.getElementById("ranked-list");
+  var clist = document.getElementById("chronological-list");
+
+  rlist.style.display = "flex";
+  clist.style.display = "none";
+  button.style.fontWeight = "bold";
+  otherButton.style.fontWeight = "normal";
+}
+
+function sortByDate() {
+  var button = document.getElementById("by-date");
+  var otherButton = document.getElementById("by-rating");
+  var rlist = document.getElementById("ranked-list");
+  var clist = document.getElementById("chronological-list");
+
+  clist.style.display = "flex";
+  rlist.style.display = "none";
+  button.style.fontWeight = "bold";
+  otherButton.style.fontWeight = "normal";
+}
+
 function toggleMovieMenu() {
   var element = document.getElementById("movies-menu");
   if (element.style.display !== "flex") {
@@ -61,11 +85,12 @@ function collapseList(list_class, icon_id) {
 </script>
 
 <div id="page-decoration"  style="background-color:{{watchlst.color}}"></div>
+<div id="sort-by">Sort by &nbsp; <div id="by-rating" onclick="sortByRating()">Rating</div> &nbsp; | &nbsp; <div id="by-date" onclick="sortByDate()">Date</div></div>
 <div class="page-content">
 
   <div class="show-preview" style="display:block; filter: drop-shadow(-2px 5px 13px black)"></div>
 
-  <div id="watched--list">
+  <div id="main-list">
     <div class="list-header">
       <div class="list-menu">
         {% for list in lists %}
@@ -74,7 +99,7 @@ function collapseList(list_class, icon_id) {
         <span id="current-list" style="color:{{watchlst.color}}" onclick="toggleWatchlistMenu()"><h1>{{watchlst.name}}'s</h1></span>
       </div>
 
-      <div>
+      <div id="title-type-header">
         <a id="movies-menu" href="/watchlist/{{watchlst}}/movies"><h1>Movies</h1></a>
         <div style="display: flex">
           <h1 id="shows-menu" onclick="toggleMovieMenu()">Shows </h1>
@@ -83,28 +108,48 @@ function collapseList(list_class, icon_id) {
       </div>
     </div>
 
-    {% if ranked_list %}
-        <ul>
-        {% for show in ranked_list %}
-            <div class="watched-show"><a href="{% url 'watchlist:show_detail' show.id %}">{{ show.show_title }}</a></div>
-            <div class="show-preview">
-              <img class="preview-img" src="{{show.featured_img}}">
-              <div class="preview-right-col">
-                  <h1>{{ show.show_title }}</h1>
-                  <h1 class="rating" style="color:{{watchlst.color}}">{{ show.rating }}</h1>
-                  <p>{{ show.synopsis }}</p>
-              </div>
-           </div>
-        {% endfor %}
-        </ul>
-    {% else %}
-        <p >You haven't watched any shows I guess. </p>
-    {% endif %}
+    <div id="watched-list">
+      {% if ranked_list %}
+        <div id="ranked-list">
+          <ul>
+          {% for show in ranked_list %}
+              <div class="watched-show"><a href="{% url 'watchlist:show_detail' show.id %}">{{ show.show_title }}</a></div>
+              <div class="show-preview">
+                <img class="preview-img" src="{{show.featured_img}}">
+                <div class="preview-right-col">
+                    <h1>{{ show.show_title }}</h1>
+                    <h1 class="rating" style="color:{{watchlst.color}}">{{ show.rating }}</h1>
+                    <p>{{ show.synopsis }}</p>
+                </div>
+             </div>
+          {% endfor %}
+          </ul>
+        </div>
+
+        <div id="chronological-list">
+          <ul>
+          {% for show in chronological_list %}
+              <div class="watched-show"><a href="{% url 'watchlist:show_detail' show.id %}">{{ show.show_title }}</a></div>
+              <div class="show-preview">
+                <img class="preview-img" src="{{show.featured_img}}">
+                <div class="preview-right-col">
+                    <h1>{{ show.show_title }}</h1>
+                    <h1 class="rating" style="color:{{watchlst.color}}">{{ show.rating }}</h1>
+                    <p>{{ show.synopsis }}</p>
+                </div>
+             </div>
+          {% endfor %}
+          </ul>
+        </div>
+      {% else %}
+          <p >You haven't watched any shows I guess. </p>
+      {% endif %}
+    </div>
   </div>
 
 
   <div id="watching-list">
-    {% if watching_list %}
+    {% if watching_list or watching_list_queued %}
         <h1> Watching: </h1>
         <ul>
           {% for show in watching_list_queued %}
@@ -135,7 +180,7 @@ function collapseList(list_class, icon_id) {
     {% endif %}
   </div>
 
-  <div id="watched-show-list">
+  <div id="to-watch-list">
     {% if to_watch_list %}
         <h1> To Watch: </h1>
         <ul>

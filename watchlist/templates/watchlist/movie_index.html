@@ -22,6 +22,30 @@ function toggleWatchlistMenu() {
   }
 }
 
+function sortByRating() {
+  var button = document.getElementById("by-rating");
+  var otherButton = document.getElementById("by-date");
+  var rlist = document.getElementById("ranked-list");
+  var clist = document.getElementById("chronological-list");
+
+  rlist.style.display = "flex";
+  clist.style.display = "none";
+  button.style.fontWeight = "bold";
+  otherButton.style.fontWeight = "normal";
+}
+
+function sortByDate() {
+  var button = document.getElementById("by-date");
+  var otherButton = document.getElementById("by-rating");
+  var rlist = document.getElementById("ranked-list");
+  var clist = document.getElementById("chronological-list");
+
+  clist.style.display = "flex";
+  rlist.style.display = "none";
+  button.style.fontWeight = "bold";
+  otherButton.style.fontWeight = "normal";
+}
+
 function toggleShowMenu() {
   var element = document.getElementById("shows-menu");
   if (element.style.display !== "flex") {
@@ -30,6 +54,7 @@ function toggleShowMenu() {
     element.style.display = "none";
   }
 }
+
 
 function searchMovies() {
   var search_prompt = document.getElementById("movie-search").value;
@@ -55,12 +80,13 @@ function collapseList(list_class, icon_id) {
       icon.style.transform = "rotate(180deg)";
     }
   }
-
 }
+
 
 </script>
 
 <div id="page-decoration"  style="background-color:{{watchlst.color}}"></div>
+<div id="sort-by">Sort by &nbsp; <div id="by-rating" onclick="sortByRating()">Rating</div> &nbsp; | &nbsp; <div id="by-date" onclick="sortByDate()">Date</div></div>
 <div class="page-content">
 
   <div class="movie-preview" style="display:block; filter: drop-shadow(-2px 5px 13px black)"></div>
@@ -69,11 +95,11 @@ function collapseList(list_class, icon_id) {
     <div class="list-header">
       <div class="list-menu">
         {% for list in lists %}
-          <a class="hidden-list" href="/watchlist/{{watchlst.name}}/movies"><h1>{{list.name}}</h1></a>
+          <a class="hidden-list" href="/watchlist/{{list.name}}/movies"><h1>{{list.name}}</h1></a>
         {% endfor %}
         <span id="current-list" style="color:{{watchlst.color}}" onclick="toggleWatchlistMenu()"><h1>{{watchlst.name}}'s</h1></span>
       </div>
-      <div>
+      <div id="title-type-header">
         <a id="shows-menu" href="/watchlist/{{watchlst.name}}/shows"><h1>Shows</h1></a>
         <div style="display: flex">
           <h1 id="movies-menu" onclick="toggleShowMenu()">Movies </h1>
@@ -82,32 +108,52 @@ function collapseList(list_class, icon_id) {
       </div>
     </div>
 
-    {% if ranked_list %}
-        <ul>
-        {% for movie in ranked_list %}
-            <div class="watched-movie"><a href="{% url 'watchlist:movie_detail' movie.id %}">{{ movie.movie_title }}</a></div>
-            <div class="movie-preview">
-              <img class="preview-img" src="{{movie.featured_img}}">
-              <div class="preview-right-col">
-                  <h1>{{ movie.movie_title }}</h1>
-                  <h1 class="rating" style="color:{{watchlst.color}}">{{ movie.rating }}</h1>
-                  <p>{{ movie.synopsis }}</p>
-              </div>
-           </div>
-        {% endfor %}
-        </ul>
-    {% else %}
-        <p >You haven't watched any movies I guess. </p>
-    {% endif %}
+    <div id="watching-list">
+      {% if ranked_list %}
+        <div id="ranked-list">
+          <ul>
+          {% for movie in ranked_list %}
+              <div class="watched-movie"><a href="{% url 'watchlist:movie_detail' movie.id %}">{{ movie.movie_title }}</a></div>
+              <div class="movie-preview">
+                <img class="preview-img" src="{{movie.featured_img}}">
+                <div class="preview-right-col">
+                    <h1>{{ movie.movie_title }}</h1>
+                    <h1 class="rating" style="color:{{watchlst.color}}">{{ movie.rating }}</h1>
+                    <p>{{ movie.synopsis }}</p>
+                </div>
+             </div>
+          {% endfor %}
+          </ul>
+        </div>
+
+        <div id="chronological-list">
+          <ul>
+          {% for movie in chronological_list %}
+              <div class="watched-movie"><a href="{% url 'watchlist:movie_detail' movie.id %}">{{ movie.movie_title }}</a></div>
+              <div class="movie-preview">
+                <img class="preview-img" src="{{movie.featured_img}}">
+                <div class="preview-right-col">
+                    <h1>{{ movie.movie_title }}</h1>
+                    <h1 class="rating" style="color:{{watchlst.color}}">{{ movie.rating }}</h1>
+                    <p>{{ movie.synopsis }}</p>
+                </div>
+             </div>
+          {% endfor %}
+          </ul>
+        </div>
+      {% else %}
+          <p >You haven't watched any movies I guess. </p>
+      {% endif %}
+    </div>
   </div>
 
-  <div id="watched-movie-list">
+  <div id="to-watch-list">
     {% if to_watch_list %}
         <h1> To Watch: </h1>
         <ul>
           {% for movie in to_watch_queued %}
               <div class="movie-to-watch">
-                <a href="{% url 'watchlist:detail' movie.id %}">{{ movie.movie_title }}</a>
+                <a href="{% url 'watchlist:movie_detail' movie.id %}">{{ movie.movie_title }}</a>
               </div>
               <div class="movie-preview queued" style="outline:{{watchlst.color}}; outline-style: solid; outline-width: thick;">
                   <img class="preview-img" src="{{movie.featured_img}}">
@@ -119,7 +165,7 @@ function collapseList(list_class, icon_id) {
           {% endfor %}
           {% for movie in to_watch_list %}
             <div class="movie-to-watch">
-              <a href="{% url 'watchlist:detail' movie.id %}">{{ movie.movie_title }}</a>
+              <a href="{% url 'watchlist:movie_detail' movie.id %}">{{ movie.movie_title }}</a>
             </div>
             <div class="movie-preview">
                 <img class="preview-img" src="{{movie.featured_img}}">

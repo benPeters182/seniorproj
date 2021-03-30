@@ -6,11 +6,13 @@ import requests
 
 from .models import Movie, WatchList, Show
 from .forms import NewMovieForm, UpdateMovieForm, UpdateShowForm, NewMovieOptionsForm
+from datetime import date
 
 def movie_index(request, list_name):
     watchlst = get_object_or_404(WatchList, name=list_name)
     wl_movies = Movie.objects.filter(list=watchlst)
     ranked_list = wl_movies.filter(watch_state="WD").order_by('-rating')
+    chronological_list = wl_movies.filter(watch_state="WD").order_by('watch_date')
     to_watch_queued = wl_movies.filter(watch_state="TW").filter(queued=True)
     to_watch_list = wl_movies.filter(watch_state="TW").filter(queued=False)
     lists = []
@@ -21,6 +23,7 @@ def movie_index(request, list_name):
     context = {'watchlst': watchlst,
                 'lists': lists,
                 'ranked_list': ranked_list,
+                'chronological_list': chronological_list,
                 'to_watch_queued': to_watch_queued,
                 'to_watch_list': to_watch_list
     }
@@ -30,6 +33,7 @@ def show_index(request, list_name):
     watchlst = get_object_or_404(WatchList, name=list_name)
     wl_shows = Show.objects.filter(list=watchlst)
     ranked_list = wl_shows.filter(watch_state="WD").order_by('-rating')
+    chronological_list = wl_shows.filter(watch_state="WD").order_by('-finish_date')
 
     to_watch_list = wl_shows.filter(watch_state="TW")
     watching_list_queued = wl_shows.filter(watch_state="WG").filter(queued=True)
@@ -44,6 +48,7 @@ def show_index(request, list_name):
     context = {'watchlst': watchlst,
                 'lists': lists,
                 'ranked_list': ranked_list,
+                'chronological_list': chronological_list,
                 'watching_list_queued': watching_list_queued,
                 'watching_list': watching_list,
                 'to_watch_queued': to_watch_queued,
@@ -53,12 +58,15 @@ def show_index(request, list_name):
 
 def movie_detail(request, movie_id):
     movie = get_object_or_404(Movie, pk=movie_id)
-
+    print(movie.watch_date)
     if request.method == 'POST':
         movie = get_object_or_404(Movie, pk=movie_id)
 
         form = UpdateMovieForm(request.POST)
         if form.is_valid():
+            if movie.watch_state != 'WD' and form.cleaned_data['new_watch_state'] == 'WD':
+                movie.watch_date = date.today().strftime("%Y-%m-%d")
+
             movie.watch_state = form.cleaned_data['new_watch_state']
             if form.cleaned_data['new_rating'] != None:
                 movie.rating = form.cleaned_data['new_rating']
@@ -68,10 +76,9 @@ def movie_detail(request, movie_id):
             if str(form.cleaned_data['delete_movie']) == 'delete':
                 movie.delete()
 
-            return HttpResponseRedirect("/watchlist/" + movie.list.name)
+            return HttpResponseRedirect("/watchlist/" + movie.list.name + "/movies")
     else:
         form = UpdateMovieForm(request.POST, movie)
-
 
     return render(request, 'watchlist/movie-detail.html', {'movie': movie, 'form': form})
 
@@ -81,6 +88,11 @@ def show_detail(request, show_id):
     if request.method == 'POST':
         sform = UpdateShowForm(request.POST)
         if sform.is_valid():
+            if show.watch_state == 'TW' and sform.cleaned_data['new_watch_state'] == 'WG':
+                show.start_date = date.today().strftime("%Y-%m-%d")
+            if show.watch_state != 'WD' and sform.cleaned_data['new_watch_state'] == 'WD':
+                show.finish_date = date.today()
+
             show.watch_state = sform.cleaned_data['new_watch_state']
             if sform.cleaned_data['new_rating'] != None:
                 show.rating = sform.cleaned_data['new_rating']
@@ -88,12 +100,11 @@ def show_detail(request, show_id):
             show.save()
 
             if str(sform.cleaned_data['delete_show']) == 'delete':
-                movie.delete()
+                show.delete()
 
-            return HttpResponseRedirect("/watchlist/" + movie.list.name)
+            return HttpResponseRedirect("/watchlist/" + show.list.name + "/shows")
     else:
-        form = UpdateMovieForm(request.POST, show)
-
+        form = UpdateShowForm(request.POST, show)
 
     return render(request, 'watchlist/show-detail.html', {'show': show, 'form': form})
 

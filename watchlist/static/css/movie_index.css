@@ -10,6 +10,14 @@ html{
   left: 1135px;
   z-index: -1;
 }
+#sort-by {
+  display: flex;
+}
+#by-rating {
+  font-weight: bold;
+}
+#by-date {
+}
 
 .page-content {
   padding: 30px 100px;
@@ -46,6 +54,11 @@ html{
       #current-list{
         cursor: pointer;
       }
+      #title-type-header{
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+      }
       #shows-menu {
         display: none;
       }
@@ -54,8 +67,14 @@ html{
 }
 
 
-  #watched-movie-list {
+  #watched-list {
 
+    }
+    #ranked-list {
+      display: flex;
+    }
+    #chronological-list {
+      display: none;
     }
 
     .watched-movie,

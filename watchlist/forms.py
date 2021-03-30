@@ -36,7 +36,6 @@ class UpdateMovieForm(forms.Form):
     )
 
     queued = forms.BooleanField(required=False)
-    show_no = forms.BooleanField(required=False)
 
 class UpdateShowForm(forms.Form):
 
@@ -58,4 +57,3 @@ class UpdateShowForm(forms.Form):
     )
 
     queued = forms.BooleanField(required=False)
-    show_yes = forms.BooleanField(required=False)
