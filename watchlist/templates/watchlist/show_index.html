@@ -1,0 +1,218 @@
+{% load static %}
+
+<head>
+  <link rel="stylesheet" href="{% static 'css/show_index.css' %}">
+</head>
+
+<script>
+function toggleWatchlistMenu() {
+  var hid_lists = document.getElementsByClassName("hidden-list");
+  var shown_lists = document.getElementsByClassName("not-hidden-list");
+
+  if (hid_lists.length > 0) {
+    console.log(hid_lists.length)
+    for (i = 0; 0 < hid_lists.length; i++) {
+      console.log(hid_lists)
+      hid_lists[0].setAttribute("class", "not-hidden-list");
+    }
+  } else {
+    for (i = 0; 0 < shown_lists.length; i++) {
+      shown_lists[0].setAttribute("class", "hidden-list");
+    }
+  }
+}
+
+function sortByRating() {
+  var button = document.getElementById("by-rating");
+  var otherButton = document.getElementById("by-date");
+  var rlist = document.getElementById("ranked-list");
+  var clist = document.getElementById("chronological-list");
+
+  rlist.style.display = "flex";
+  clist.style.display = "none";
+  button.style.fontWeight = "bold";
+  otherButton.style.fontWeight = "normal";
+}
+
+function sortByDate() {
+  var button = document.getElementById("by-date");
+  var otherButton = document.getElementById("by-rating");
+  var rlist = document.getElementById("ranked-list");
+  var clist = document.getElementById("chronological-list");
+
+  clist.style.display = "flex";
+  rlist.style.display = "none";
+  button.style.fontWeight = "bold";
+  otherButton.style.fontWeight = "normal";
+}
+
+function toggleMovieMenu() {
+  var element = document.getElementById("movies-menu");
+  if (element.style.display !== "flex") {
+    element.style.display = "flex";
+  } else {
+    element.style.display = "none";
+  }
+}
+
+function searchshows() {
+  var search_prompt = document.getElementById("show-search").value;
+  var search_prompt = document.getElementById("show-search").value;
+  var list_name = document.getElementById("current-list").textContent;
+  console.log(list_name.substr(0,list_name.length-2));
+  location.href="/watchlist/show-options/" + list_name.substr(0,list_name.length-2) + "/" + search_prompt
+}
+
+
+function collapseList(list_class, icon_id) {
+  var list_elements = document.getElementsByClassName(list_class);
+  var icon = document.getElementById(icon_id);
+
+  if (list_elements[0].style.display === "none") {
+    for (i = 0; i < list_elements.length; i++) {
+      list_elements[i].style.display = "flex";
+      icon.style.transform = "rotate(0deg)";
+    }
+  } else {
+    for (i = 0; i < list_elements.length; i++) {
+      list_elements[i].style.display = "none";
+      icon.style.transform = "rotate(180deg)";
+    }
+  }
+
+}
+
+</script>
+
+<div id="page-decoration"  style="background-color:{{watchlst.color}}"></div>
+<div id="sort-by">Sort by &nbsp; <div id="by-rating" onclick="sortByRating()">Rating</div> &nbsp; | &nbsp; <div id="by-date" onclick="sortByDate()">Date</div></div>
+<div class="page-content">
+
+  <div class="show-preview" style="display:block; filter: drop-shadow(-2px 5px 13px black)"></div>
+
+  <div id="main-list">
+    <div class="list-header">
+      <div class="list-menu">
+        {% for list in lists %}
+          <a class="hidden-list" href="/watchlist/{{list.name}}/shows"><h1>{{list.name}}</h1></a>
+        {% endfor %}
+        <span id="current-list" style="color:{{watchlst.color}}" onclick="toggleWatchlistMenu()"><h1>{{watchlst.name}}'s</h1></span>
+      </div>
+
+      <div id="title-type-header">
+        <a id="movies-menu" href="/watchlist/{{watchlst}}/movies"><h1>Movies</h1></a>
+        <div style="display: flex">
+          <h1 id="shows-menu" onclick="toggleMovieMenu()">Shows </h1>
+          <img src="{% static 'images/collapse_arrow.png' %}" alt="collapse" id="watched-collapse-icon" style="height: 25px; align-self: center" onclick="collapseList('watched-show', 'watched-collapse-icon')">
+        </div>
+      </div>
+    </div>
+
+    <div id="watched-list">
+      {% if ranked_list %}
+        <div id="ranked-list">
+          <ul>
+          {% for show in ranked_list %}
+              <div class="watched-show"><a href="{% url 'watchlist:show_detail' show.id %}">{{ show.show_title }}</a></div>
+              <div class="show-preview">
+                <img class="preview-img" src="{{show.featured_img}}">
+                <div class="preview-right-col">
+                    <h1>{{ show.show_title }}</h1>
+                    <h1 class="rating" style="color:{{watchlst.color}}">{{ show.rating }}</h1>
+                    <p>{{ show.synopsis }}</p>
+                </div>
+             </div>
+          {% endfor %}
+          </ul>
+        </div>
+
+        <div id="chronological-list">
+          <ul>
+          {% for show in chronological_list %}
+              <div class="watched-show"><a href="{% url 'watchlist:show_detail' show.id %}">{{ show.show_title }}</a></div>
+              <div class="show-preview">
+                <img class="preview-img" src="{{show.featured_img}}">
+                <div class="preview-right-col">
+                    <h1>{{ show.show_title }}</h1>
+                    <h1 class="rating" style="color:{{watchlst.color}}">{{ show.rating }}</h1>
+                    <p>{{ show.synopsis }}</p>
+                </div>
+             </div>
+          {% endfor %}
+          </ul>
+        </div>
+      {% else %}
+          <p >You haven't watched any shows I guess. </p>
+      {% endif %}
+    </div>
+  </div>
+
+
+  <div id="watching-list">
+    {% if watching_list or watching_list_queued %}
+        <h1> Watching: </h1>
+        <ul>
+          {% for show in watching_list_queued %}
+              <div class="show-to-watch">
+                <a href="{% url 'watchlist:show_detail' show.id %}">{{ show.show_title }}</a>
+              </div>
+              <div class="show-preview queued" style="outline:{{watchlst.color}}; outline-style: solid; outline-width: thick;">
+                  <img class="preview-img" src="{{show.featured_img}}">
+                  <div class="preview-right-col">
+                      <h1>{{ show.show_title }}</h1>
+                      <p>{{ show.synopsis }}</p>
+                  </div>
+             </div>
+          {% endfor %}
+          {% for show in watching_list %}
+            <div class="show-to-watch">
+              <a href="{% url 'watchlist:show_detail' show.id %}">{{ show.show_title }}</a>
+            </div>
+            <div class="show-preview">
+                <img class="preview-img" src="{{show.featured_img}}">
+                <div class="preview-right-col">
+                    <h1>{{ show.show_title }}</h1>
+                    <p>{{ show.synopsis }}</p>
+                </div>
+           </div>
+        {% endfor %}
+        </ul>
+    {% endif %}
+  </div>
+
+  <div id="to-watch-list">
+    {% if to_watch_list %}
+        <h1> To Watch: </h1>
+        <ul>
+          {% for show in to_watch_queued %}
+              <div class="show-to-watch">
+                <a href="{% url 'watchlist:show_detail' show.id %}">{{ show.show_title }}</a>
+              </div>
+              <div class="show-preview queued" style="outline:{{watchlst.color}}; outline-style: solid; outline-width: thick;">
+                  <img class="preview-img" src="{{show.featured_img}}">
+                  <div class="preview-right-col">
+                      <h1>{{ show.show_title }}</h1>
+                      <p>{{ show.synopsis }}</p>
+                  </div>
+             </div>
+          {% endfor %}
+          {% for show in to_watch_list %}
+            <div class="show-to-watch">
+              <a href="{% url 'watchlist:show_detail' show.id %}">{{ show.show_title }}</a>
+            </div>
+            <div class="show-preview">
+                <img class="preview-img" src="{{show.featured_img}}">
+                <div class="preview-right-col">
+                    <h1>{{ show.show_title }}</h1>
+                    <p>{{ show.synopsis }}</p>
+                </div>
+           </div>
+        {% endfor %}
+        </ul>
+    {% endif %}
+
+    <input type="text" name="show-search" id="show-search" placeholder="add a new show" value="">
+    <button type="button" name="button" onclick="searchshows()">find show</button>
+
+  </div>
+</div>

@@ -1,0 +1,120 @@
+html{
+  background-color: #e1d9c9
+
+}
+
+#page-decoration {
+  width: 50px;
+  height: -webkit-fill-available;
+  position: fixed;
+  left: 1135px;
+  z-index: -1;
+}
+#sort-by {
+  display: flex;
+}
+#by-rating {
+  font-weight: bold;
+}
+#by-date {
+}
+
+.page-content {
+  padding: 30px 100px;
+  }
+  a {
+    text-decoration: none;
+    color: black;
+    font-family: sans-serif;
+  }
+  h1 {
+    font-family: system-ui;
+    margin: auto;
+  }
+
+  .list-header{
+    display: flex;
+    align-items: flex-end;
+    }
+
+    .list-menu {
+      display: flex;
+      flex-direction: column;
+      padding-right: 10px;
+      }
+
+      .hidden-list{
+        visibility: hidden;
+        opacity: 0;
+      }
+      .not-hidden-list{
+        opacity: 100%;
+        transition-duration: 1s;
+      }
+      #current-list{
+        cursor: pointer;
+      }
+      #title-type-header{
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      #movies-menu {
+        display: none;
+      }
+      #shows-menu{
+        cursor: pointer;
+}
+
+  #watched-list {
+
+    }
+
+    #ranked-list {
+      display: flex;
+    }
+    #chronological-list {
+      display: none;
+    }
+
+    .watched-show,
+    .show-to-watch {
+      background-color: white;
+      margin-bottom: 10px;
+      width: fit-content;
+      padding: 10px 5px;
+    }
+    .watched-show:hover,
+    .show-to-watch:hover{
+      margin-left: 20px;
+    }
+    .show_preview .queued {
+      outline-style: solid;
+      outline-width: thick;
+    }
+    .show-preview {
+      background-color: white;
+      padding: 20px;
+      width: 600px;
+      height: 300px;
+      top: 0;
+      bottom: 0;
+      margin: auto;
+      left: 650px;
+      position: fixed;
+      display: none;
+    }
+    .watched-show:hover + .show-preview,
+    .show-to-watch:hover + .show-preview {
+      display: flex;
+
+    }
+    .preview-img{
+      height: -webkit-fill-available;
+    }
+    .preview-right-col{
+        padding-left: 20px;
+    }
+    .rating{
+
+}
