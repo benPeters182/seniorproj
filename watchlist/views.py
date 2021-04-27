@@ -7,6 +7,9 @@ import requests
 from .models import Movie, WatchList, Show
 from .forms import NewMovieForm, UpdateMovieForm, UpdateShowForm, NewMovieOptionsForm
 from datetime import date
+from .utils import *
+
+#Index Views
 
 def movie_index(request, list_name):
     watchlst = get_object_or_404(WatchList, name=list_name)
@@ -27,6 +30,7 @@ def movie_index(request, list_name):
                 'to_watch_queued': to_watch_queued,
                 'to_watch_list': to_watch_list
     }
+
     return render(request, 'watchlist/movie_index.html', context)
 
 def show_index(request, list_name):
@@ -54,7 +58,28 @@ def show_index(request, list_name):
                 'to_watch_queued': to_watch_queued,
                 'to_watch_list': to_watch_list
     }
+
     return render(request, 'watchlist/show_index.html', context)
+
+def actor_index(request, list_name):
+    watchlst = get_object_or_404(WatchList, name=list_name)
+
+    actor_occurances = []   #accumulate list of actors that are in list more than once
+                            #(actor, occurances)
+    for actor in Actor.objects.filter(list=watchlst):
+        n = len(Role.objects.filter(actor=actor))
+        if n > 1:
+            actor_occurances.append((actor, n))
+        elif n == 0:
+            actor.delete()
+
+    actor_occurances.sort(reverse=True, key=lambda tup: tup[1])
+    context = { 'watchlst': watchlst, 'actor_occurances': actor_occurances }
+
+    return render(request, 'watchlist/actor-index.html', context)
+
+
+#Detail Views
 
 def movie_detail(request, movie_id):
     movie = get_object_or_404(Movie, pk=movie_id)
@@ -108,58 +133,35 @@ def show_detail(request, show_id):
 
     return render(request, 'watchlist/show-detail.html', {'show': show, 'form': form})
 
+def actor_detail(request, actor_id):
+    actor = get_object_or_404(Actor, pk=actor_id)
+    roles = Role.objects.filter(actor=actor)
 
-def find_movie_page(title):
-    '''Returns the html for the movie's IMDB page'''
-    search_url = 'https://www.imdb.com/find?q=' + title.replace(' ', '+') + '&s=tt&ttype=ft&ref_=fn_ft'
-    search_page = requests.get(search_url)
-    soup = BeautifulSoup(search_page.content, 'html.parser')
+    context = { 'actor': actor, 'roles': roles}
 
-    movie_url = "https://www.imdb.com" + str(soup.find_all('td', class_='result_text')[0].a['href'])
-    movie_page = requests.get(movie_url)
-    return BeautifulSoup(movie_page.content, 'html.parser')
+    return render(request, 'watchlist/actor-detail.html', context)
 
 
-def find_choices(title, show_or_movie):
-    '''Returns list of tuples for choice field'''
-    search_url = 'https://www.imdb.com/find?q=' + title.replace(' ', '+') + '&s=tt&ttype='
+#Cast Views
 
-    if show_or_movie == "movie":
-        search_url = search_url + 'ft&ref_=fn_ft'
-    elif show_or_movie == "show":
-        search_url = search_url + 'tv&ref_=fn_tv'
+def movie_cast(request, movie_id):
+    movie = get_object_or_404(Movie, pk=movie_id)
+    title_roles = Role.objects.filter(movie=movie)
+    context = {'title': movie, 'roles': title_roles, "title_type": Movie}
 
-    search_page = requests.get(search_url)
-    soup = BeautifulSoup(search_page.content, 'html.parser')
-
-    num_possible_movies = len(soup.find_all('td', class_='result_text'))
-    MAX_MOVIE_OPTIONS = 10
-    if num_possible_movies >= MAX_MOVIE_OPTIONS:
-        num_possible_movies = MAX_MOVIE_OPTIONS
-
-    choices=[]
-    for i in range(num_possible_movies):
-        url = 'https://www.imdb.com' + str(soup.find_all('td', class_='result_text')[i].a['href'])
-        title = soup.find_all('td', class_='result_text')[i].get_text().strip()
-        choices.append((url , title))
-
-    return choices
+    return render(request, 'watchlist/cast-list.html', context)
 
 
-def new_movie(request, list_name):
-    watchlst = get_object_or_404(WatchList, name = list_name)
+def show_cast(request, show_id):
+    show = get_object_or_404(Show, pk=show_id)
+    title_roles = Role.objects.filter(show=show)
+    context = {'title': show, 'roles': title_roles, "title_type": Show}
 
-    if request.method == 'POST':
-        form = NewMovieForm(request.POST)
-        if form.is_valid():
-            movie_title = form.cleaned_data['movie_title']
+    return render(request, 'watchlist/cast-list.html', context)
 
-            return HttpResponseRedirect("/watchlist/" + watchlst.name + "/options/Herbie")
-    else:
-        form = NewMovieForm()
 
-    return render(request, 'watchlist/newmovie.html', {'watchlst': watchlst, 'form': form})
 
+#New Title Views
 
 def new_movie_options(request, list_name, search_text):
     watchlst = get_object_or_404(WatchList, name = list_name)
@@ -179,8 +181,11 @@ def new_movie_options(request, list_name, search_text):
             newmov.synopsis = soup.find_all('div', class_='summary_text')[0].get_text()
             newmov.featured_img = soup.find('div', class_='poster').img['src']
             newmov.list = watchlst
+            newmov.url = url
 
             newmov.save()
+
+            add_roles(newmov)
 
             return HttpResponseRedirect("/watchlist/" + watchlst.name + "/movies")
     else:

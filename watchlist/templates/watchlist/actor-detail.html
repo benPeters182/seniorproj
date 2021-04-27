@@ -1,0 +1,25 @@
+{% load static %}
+<head>
+  <link rel="stylesheet" href="{% static 'css/actor_detail.css' %}">
+</head>
+<div id="page-content">
+    <h1>{{actor.name}}</h1>
+    <div id="role-list">
+        {% for role in roles %}
+          {% if role.movie %}
+            <div class="role-container">
+                <img class="preview-img" src="{{role.movie.featured_img}}">
+                <h2>{{ role.name }}</h2>
+                <p>{{ role.movie.movie_title }}</p>
+            </div>
+          {% endif %}
+          {% if role.show != None %}
+            <div class="role-container">
+                <img class="preview-img" src="{{role.show.featured_img}}">
+                <h2>{{ role.name }}</h2>
+                <p>{{ role.show.show_title }}</p>
+            </div>
+          {% endif %}
+        {% endfor %}
+    </div>
+</div>
