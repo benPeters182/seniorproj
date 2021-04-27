@@ -47,11 +47,16 @@ function sortByDate() {
 }
 
 function toggleMovieMenu() {
-  var element = document.getElementById("movies-menu");
-  if (element.style.display !== "flex") {
-    element.style.display = "flex";
+  var menuEls = document.getElementsByClassName("list-type-menu");
+
+  if (menuEls[0].style.display !== "flex") {
+    for (i = 0; i < menuEls.length; i++) {
+      menuEls[i].style.display = "flex";
+    }
   } else {
-    element.style.display = "none";
+    for (i = 0; i < menuEls.length; i++) {
+      menuEls[i].style.display = "none";
+    }
   }
 }
 
@@ -100,7 +105,8 @@ function collapseList(list_class, icon_id) {
       </div>
 
       <div id="title-type-header">
-        <a id="movies-menu" href="/watchlist/{{watchlst}}/movies"><h1>Movies</h1></a>
+        <a class="list-type-menu" href="/watchlist/{{watchlst}}/movies"><h1>Movies</h1></a>
+        <a class="list-type-menu" href="/watchlist/{{watchlst.name}}/actors"><h1>Actors</h1></a>
         <div style="display: flex">
           <h1 id="shows-menu" onclick="toggleMovieMenu()">Shows </h1>
           <img src="{% static 'images/collapse_arrow.png' %}" alt="collapse" id="watched-collapse-icon" style="height: 25px; align-self: center" onclick="collapseList('watched-show', 'watched-collapse-icon')">

@@ -58,6 +58,7 @@ def add_roles(title):
 
 
 def add_role(title, actor_url, role_name):
+    '''Helper for add_roles'''
     if isinstance(title, Movie):
         title_type = "movie"
     elif isinstance(title, Show):
@@ -86,6 +87,7 @@ def add_role(title, actor_url, role_name):
 
 
 def add_actor(actor_url, list):
+    '''helper for add_role'''
     actor_page = requests.get(actor_url)
     soup = BeautifulSoup(actor_page.content, 'html.parser')
 
@@ -95,16 +97,3 @@ def add_actor(actor_url, list):
     new_actor.name = soup.find_all('h1', class_='header')[0].get_text().strip()
     print("Actor: " + str(new_actor))
     new_actor.save()
-
-def updateActors(wlist):
-    print(str(wlist) + "'s Movies:")
-    for movie in Movie.objects.filter(list = wlist):
-        if len(Role.objects.filter(movie=movie)) == 0:
-            print(movie.movie_title)
-            add_roles(movie)
-
-    print(str(wlist) + "'s Movies:")
-    for show in Show.objects.filter(list = wlist):
-        if len(Role.objects.filter(show=show)) == 0:
-            print(show.show_title)
-            add_roles(show)

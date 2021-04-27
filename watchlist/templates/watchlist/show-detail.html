@@ -14,6 +14,7 @@
   </div>
   <div>
   <p class="movie-summary">{{ show.synopsis }}</p>
+  <h2><a href="/watchlist/{{show.id}}/show-cast">CAST LIST</a></h2>
 
   <form action="{% url 'watchlist:show_detail' show.id %}" method="post">
       {% csrf_token %}

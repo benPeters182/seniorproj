@@ -5,9 +5,10 @@ from bs4 import BeautifulSoup
 import requests
 
 from .models import Movie, WatchList, Show
-from .forms import NewMovieForm, UpdateMovieForm, UpdateShowForm, NewMovieOptionsForm
+from .forms import UpdateMovieForm, UpdateShowForm, NewMovieOptionsForm
 from datetime import date
 from .utils import *
+
 
 #Index Views
 
@@ -83,7 +84,6 @@ def actor_index(request, list_name):
 
 def movie_detail(request, movie_id):
     movie = get_object_or_404(Movie, pk=movie_id)
-    print(movie.watch_date)
     if request.method == 'POST':
         movie = get_object_or_404(Movie, pk=movie_id)
 
@@ -169,7 +169,6 @@ def new_movie_options(request, list_name, search_text):
 
     if request.method == 'POST':
         form = NewMovieOptionsForm(request.POST, movie_choices = choices)
-        print("got to line 82")
         if form.is_valid():
 
             newmov = Movie()
@@ -193,15 +192,15 @@ def new_movie_options(request, list_name, search_text):
 
     return render(request, 'watchlist/newmovieoptions.html', {'watchlst': watchlst, 'form': form, 'search_text': search_text})
 
+
 def new_show_options(request, list_name, search_text):
     watchlst = get_object_or_404(WatchList, name = list_name)
     choices = find_choices(search_text, "show")
 
     if request.method == 'POST':
         form = NewMovieOptionsForm(request.POST, movie_choices = choices)
-        print("got to line 82")
-        if form.is_valid():
 
+        if form.is_valid():
             newshow = Show()
             url = form.cleaned_data['movie_url']
             show_page = requests.get(url)

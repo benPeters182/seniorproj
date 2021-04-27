@@ -47,11 +47,16 @@ function sortByDate() {
 }
 
 function toggleShowMenu() {
-  var element = document.getElementById("shows-menu");
-  if (element.style.display !== "flex") {
-    element.style.display = "flex";
+  var menuEls = document.getElementsByClassName("list-type-menu");
+
+  if (menuEls[0].style.display !== "flex") {
+    for (i = 0; i < menuEls.length; i++) {
+      menuEls[i].style.display = "flex";
+    }
   } else {
-    element.style.display = "none";
+    for (i = 0; i < menuEls.length; i++) {
+      menuEls[i].style.display = "none";
+    }
   }
 }
 
@@ -100,7 +105,8 @@ function collapseList(list_class, icon_id) {
         <span id="current-list" style="color:{{watchlst.color}}" onclick="toggleWatchlistMenu()"><h1>{{watchlst.name}}'s</h1></span>
       </div>
       <div id="title-type-header">
-        <a id="shows-menu" href="/watchlist/{{watchlst.name}}/shows"><h1>Shows</h1></a>
+        <a class="list-type-menu" href="/watchlist/{{watchlst.name}}/shows"><h1>Shows</h1></a>
+        <a class="list-type-menu" href="/watchlist/{{watchlst.name}}/actors"><h1>Actors</h1></a>
         <div style="display: flex">
           <h1 id="movies-menu" onclick="toggleShowMenu()">Movies </h1>
           <img src="{% static 'images/collapse_arrow.png' %}" alt="collapse" id="watched-collapse-icon" style="height: 25px; align-self: center" onclick="collapseList('watched-movie', 'watched-collapse-icon')">
@@ -151,11 +157,12 @@ function collapseList(list_class, icon_id) {
     {% if to_watch_list %}
         <h1> To Watch: </h1>
         <ul>
+          <div id="queued-items">
           {% for movie in to_watch_queued %}
               <div class="movie-to-watch">
                 <a href="{% url 'watchlist:movie_detail' movie.id %}">{{ movie.movie_title }}</a>
               </div>
-              <div class="movie-preview queued" style="outline:{{watchlst.color}}; outline-style: solid; outline-width: thick;">
+              <div class="movie-preview queued-preview" style="outline-color:{{watchlst.color}};">
                   <img class="preview-img" src="{{movie.featured_img}}">
                   <div class="preview-right-col">
                       <h1>{{ movie.movie_title }}</h1>
@@ -163,6 +170,8 @@ function collapseList(list_class, icon_id) {
                   </div>
              </div>
           {% endfor %}
+          </div>
+
           {% for movie in to_watch_list %}
             <div class="movie-to-watch">
               <a href="{% url 'watchlist:movie_detail' movie.id %}">{{ movie.movie_title }}</a>

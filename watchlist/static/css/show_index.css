@@ -59,7 +59,7 @@ html{
         flex-direction: column;
         align-items: flex-start;
       }
-      #movies-menu {
+      .list-type-menu {
         display: none;
       }
       #shows-menu{

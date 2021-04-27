@@ -59,7 +59,7 @@ html{
         flex-direction: column;
         align-items: flex-start;
       }
-      #shows-menu {
+      .list-type-menu {
         display: none;
       }
       #movies-menu{
@@ -116,5 +116,13 @@ html{
         padding-left: 20px;
     }
     .rating{
+
+    }
+    .queued-preview {
+      outline-style: solid;
+      outline-width: thick;
+    }
+    #queued-items {
+      margin-bottom: 30px;
 
 }
