@@ -1,0 +1,18 @@
+{% load static %}
+<head>
+  <link rel="stylesheet" href="{% static 'css/actor_index.css' %}">
+</head>
+<div class="page-content">
+  <div class="header">
+    <h1>{{ watchlst }}'s Actors</h1>
+  </div>
+  <div id="actor-list">
+      {% for actor in actor_occurances %}
+          <div class="actor-container">
+              <h2><a href="{% url 'watchlist:actor_detail' actor.0.id %}">{{ actor.0.name }}</a></h2>
+              <p>{{ actor.1 }} appearances</p>
+          </div>
+      {% endfor %}
+  </div>
+
+</div>

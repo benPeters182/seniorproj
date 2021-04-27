@@ -1,0 +1,21 @@
+{% load static %}
+<head>
+  <link rel="stylesheet" href="{% static 'css/actor_index.css' %}">
+</head>
+<div class="page-content">
+    <div class="header">
+        {% if title_type == Show %}
+            <h1>{{ title.show_title }} Cast</h1>
+        {% else %}
+            <h1>{{ title.movie_title }} Cast</h1>
+        {% endif %}
+    </div>
+    <div id="actor-list">
+        {% for role in roles %}
+            <div class="actor-container">
+                <h2>{{ role.name }}</h2>
+                <p><a href="{% url 'watchlist:actor_detail' role.actor.id %}">{{ role.actor }}</a></p>
+            </div>
+        {% endfor %}
+
+</div>

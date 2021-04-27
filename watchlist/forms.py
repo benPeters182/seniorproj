@@ -34,3 +34,26 @@ class UpdateMovieForm(forms.Form):
         max_length=6,
         required = False
     )
+
+    queued = forms.BooleanField(required=False)
+
+class UpdateShowForm(forms.Form):
+
+    new_rating = forms.DecimalField(
+        label = 'Rating',
+        required = False,
+    )
+
+    new_watch_state = forms.ChoiceField(
+        label='Seen it?',
+        choices = [('TW', 'To watch'),('WG', 'Watching'), ('WD', 'Watched')],
+        required = False
+    )
+
+    delete_show = forms.CharField(
+        label='Type "delete" to delete',
+        max_length=6,
+        required = False
+    )
+
+    queued = forms.BooleanField(required=False)
